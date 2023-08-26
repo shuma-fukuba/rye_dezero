@@ -7,14 +7,23 @@
 #   all-features: false
 
 -e file:.
+black==23.7.0
+click==8.1.7
 contourpy==1.1.0
 cycler==0.11.0
 fonttools==4.42.1
+iniconfig==2.0.0
+isort==5.12.0
 kiwisolver==1.4.5
 matplotlib==3.7.2
+mypy-extensions==1.0.0
 numpy==1.25.2
 packaging==23.1
+pathspec==0.11.2
 pillow==10.0.0
+platformdirs==3.10.0
+pluggy==1.2.0
 pyparsing==3.0.9
+pytest==7.4.0
 python-dateutil==2.8.2
 six==1.16.0
