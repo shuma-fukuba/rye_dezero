@@ -1,11 +1,25 @@
-from dezero.core_simple import (
-    Function,
-    Variable,
-    as_array,
-    as_variable,
-    no_grad,
-    setup_variable,
-    using_config,
-)  # F401: noqa
+is_simple_core = False
 
-setup_variable()
+if is_simple_core:
+    from dezero.core_simple import (
+        Function,
+        Variable,
+        as_array,  # F401: noqa
+        as_variable,
+        no_grad,
+        setup_variable,
+        using_config,
+    )
+    setup_variable()
+else:
+    from dezero.core import (
+        Function,
+        Variable,
+        as_array,
+        as_variable,
+        no_grad,
+        setup_variable,
+        using_config,
+    )
+
+    setup_variable()
