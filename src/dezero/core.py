@@ -191,7 +191,7 @@ class Square(Function):
         return x**2
 
     def backward(self, gy: Variable) -> Variable:
-        x = self.inputs
+        x, = self.inputs
         gx = 2 * x * gy
         return gx
 
