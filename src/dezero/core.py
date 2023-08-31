@@ -3,6 +3,8 @@ import weakref
 
 import numpy as np
 
+import dezero
+
 
 class Config:
     enable_backprop: bool = True
@@ -37,6 +39,11 @@ class Variable:
     @property
     def dtype(self):
         return self.data.dtype
+
+    def reshape(self, *shape: int):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
+        return dezero.functions.reshape(self, shape)
 
     def __len__(self):
         return len(self.data)
@@ -191,7 +198,7 @@ class Square(Function):
         return x**2
 
     def backward(self, gy: Variable) -> Variable:
-        x, = self.inputs
+        (x,) = self.inputs
         gx = 2 * x * gy
         return gx
 

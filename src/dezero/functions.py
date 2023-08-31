@@ -1,6 +1,6 @@
 import numpy as np
 
-from dezero.core import Function, Variable
+from dezero.core import Function, Variable, as_variable
 
 
 class Sin(Function):
@@ -36,6 +36,20 @@ class Tanh(Function):
         return gx
 
 
+class Reshape(Function):
+    def __init__(self, shape: tuple[int]) -> None:
+        self.shape = shape
+        self.x_shape = None
+
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        self.x_shape = x.shape
+        y = x.reshape(self.shape)
+        return y
+
+    def backward(self, gy: Variable):
+        return reshape(gy, self.x_shape)
+
+
 def cos(x: Variable) -> Variable:
     return Cos()(x)
 
@@ -46,3 +60,9 @@ def sin(x: Variable) -> Variable:
 
 def tanh(x: Variable) -> Variable:
     return Tanh()(x)
+
+
+def reshape(x: Variable, shape: tuple[int]) -> Variable:
+    if x.shape == shape:
+        return as_variable(x)
+    return Reshape(shape)(x)
