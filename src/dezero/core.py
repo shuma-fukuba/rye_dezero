@@ -40,6 +40,10 @@ class Variable:
     def dtype(self):
         return self.data.dtype
 
+    @property
+    def T(self):
+        return dezero.functions.transpose(self)
+
     def reshape(self, *shape: int):
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
             shape = shape[0]

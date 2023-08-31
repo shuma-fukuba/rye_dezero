@@ -50,6 +50,16 @@ class Reshape(Function):
         return reshape(gy, self.x_shape)
 
 
+class Transpose(Function):
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        y = np.transpose(x)
+        return y
+
+    def backward(self, gy: Variable) -> Variable:
+        gx = transpose(gy)
+        return gx
+
+
 def cos(x: Variable) -> Variable:
     return Cos()(x)
 
@@ -66,3 +76,7 @@ def reshape(x: Variable, shape: tuple[int]) -> Variable:
     if x.shape == shape:
         return as_variable(x)
     return Reshape(shape)(x)
+
+
+def transpose(x: Variable) -> Variable:
+    return Transpose()(x)
