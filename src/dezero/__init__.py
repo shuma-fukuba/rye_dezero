@@ -23,3 +23,6 @@ else:
     )
 
     setup_variable()
+
+
+from dezero.models import Model
