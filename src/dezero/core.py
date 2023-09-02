@@ -128,19 +128,28 @@ class Function:
 
         return outputs if len(outputs) > 1 else outputs[0]
 
-    def forward(self):
+    def forward(self, x: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
-    def backward(self):
+    def backward(self, gy: Variable) -> Variable:
         raise NotImplementedError()
 
 
 class Add(Function):
+    def __init__(self) -> None:
+        self.x0_shape = None
+        self.x1_shape = None
+
     def forward(self, x0: np.ndarray, x1: np.ndarray) -> np.ndarray:
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
         return x0 + x1
 
     def backward(self, gy: Variable) -> tuple[Variable, Variable]:
-        return gy, gy
+        gx0, gx1 = gy, gy
+        if self.x0_shape != self.x1_shape:
+            gx0 = dezero.functions.sum_to(gx0, self.x0_shape)
+            gx1 = dezero.functions.sum_to(gx1, self.x1_shape)
+        return gx0, gx1
 
 
 class Sub(Function):
