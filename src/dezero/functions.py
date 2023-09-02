@@ -52,6 +52,16 @@ class Tanh(Function):
         return gx
 
 
+class Square(Function):
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        return x**2
+
+    def backward(self, gy: Variable) -> Variable:
+        (x,) = self.inputs
+        gx = 2 * x * gy
+        return gx
+
+
 class Reshape(Function):
     def __init__(self, shape: tuple[int]) -> None:
         self.shape = shape
@@ -193,6 +203,10 @@ def sin(x: Variable) -> Variable:
 
 def tanh(x: Variable) -> Variable:
     return Tanh()(x)
+
+
+def square(x: Variable) -> Variable:
+    return Square()(x)
 
 
 def reshape(x: Variable, shape: tuple[int]) -> Variable:

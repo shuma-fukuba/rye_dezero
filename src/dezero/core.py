@@ -135,6 +135,10 @@ class Function:
         raise NotImplementedError()
 
 
+class Parameter(Variable):
+    pass
+
+
 class Add(Function):
     def __init__(self) -> None:
         self.x0_shape = None
@@ -204,34 +208,6 @@ class Pow(Function):
         c = self.c
         gx = c * x ** (c - 1) * gy
         return gx
-
-
-class Square(Function):
-    def forward(self, x: np.ndarray) -> np.ndarray:
-        return x**2
-
-    def backward(self, gy: Variable) -> Variable:
-        (x,) = self.inputs
-        gx = 2 * x * gy
-        return gx
-
-
-class Exp(Function):
-    def forward(self, x: np.ndarray) -> np.ndarray:
-        return np.exp(x)
-
-    def backward(self, gy):
-        x = self.inputs.data
-        gx = np.exp(x) * gy
-        return gx
-
-
-def square(x: Variable) -> Variable:
-    return Square()(x)
-
-
-def exp(x: np.ndarray):
-    return Exp()(x)
 
 
 def add(x0: Variable, x1: Variable) -> Variable:
