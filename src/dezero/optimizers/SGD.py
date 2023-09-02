@@ -7,5 +7,5 @@ class SGD(Optimizer):
         super().__init__()
         self.lr = lr
 
-    def update_one(self, param: Parameter):
+    def update_one(self, param: Parameter) -> None:
         param.data -= self.lr * param.grad.data

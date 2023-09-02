@@ -1,3 +1,4 @@
+from dezero.core import Parameter
 from dezero.layers import Layer
 
 
@@ -20,7 +21,7 @@ class Optimizer:
         for param in params:
             self.update_one(param)
 
-    def update_one(self, param):
+    def update_one(self, param: Parameter):
         raise NotImplementedError()
 
     def add_hook(self, f):
