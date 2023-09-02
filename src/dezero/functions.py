@@ -4,6 +4,21 @@ from dezero import utils
 from dezero.core import Function, Variable, as_variable
 
 
+class Exp(Function):
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        y = np.exp(x)
+        return y
+
+    def backward(self, gy: Variable) -> Variable:
+        y = self.outputs[0]()  # weakref
+        gx = gy * y
+        return gx
+
+
+def exp(x: Variable) -> Variable:
+    return Exp()(x)
+
+
 class Sin(Function):
     def forward(self, x: np.ndarray):
         y = np.sin(x)
@@ -141,6 +156,33 @@ class MeanSquaredError(Function):
         return gx0, gx1
 
 
+class Linear(Function):
+    def forward(self, x: np.ndarray, W: np.ndarray, b: np.ndarray) -> np.ndarray:
+        y = x.dot(W)
+        if b is not None:
+            y += b
+        return y
+
+    def backward(self, gy: Variable) -> tuple[Variable, Variable, Variable]:
+        x, W, b = self.inputs
+        gb = None if b.data is None else sum_to(gy, b.shape)
+        gx = matmul(gy, W.T)
+        gW = matmul(x.T, gy)
+        return gx, gW, gb
+
+
+class Sigmoid(Function):
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        # y = 1 / (1 + xp.exp(-x))
+        y = np.tanh(x * 0.5) * 0.5 + 0.5  # Better implementation
+        return y
+
+    def backward(self, gy: Variable) -> Variable:
+        y = self.outputs[0]()
+        gx = gy * y * (1 - y)
+        return gx
+
+
 def cos(x: Variable) -> Variable:
     return Cos()(x)
 
@@ -201,3 +243,17 @@ def linear_simple(x: Variable, W: Variable, b: Variable = None) -> Variable:
     y = t + b
     t.data = None
     return y
+
+
+def sigmoid_simple(x: Variable) -> Variable:
+    x = as_variable(x)
+    y = 1 / (1 + exp(-x))
+    return y
+
+
+def linear(x: Variable, W: Variable, b: Variable = None) -> Variable:
+    return Linear()(x, W, b)
+
+
+def sigmoid(x: Variable) -> Variable:
+    return Sigmoid()(x)
