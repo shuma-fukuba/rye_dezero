@@ -134,3 +134,23 @@ def max_backward_shape(x: dezero.Variable, axis: int) -> list[int]:
 
     shape = [s if ax not in axis else 1 for ax, s in enumerate(x.shape)]
     return shape
+
+
+def logsumexp(x: dezero.Variable, axis: int = 1) -> dezero.Variable:
+    m = x.max(axis=axis, keepdims=True)
+    y = x - m
+    np.exp(y, out=y)
+    s = y.sum(axis=axis, keepdims=True)
+    np.log(s, out=s)
+    m += s
+    return m
+
+
+def pair(x: dezero.Variable) -> dezero.Variable:
+    if isinstance(x, int):
+        return (x, x)
+    elif isinstance(x, tuple):
+        assert len(x) == 2
+        return x
+    else:
+        raise ValueError

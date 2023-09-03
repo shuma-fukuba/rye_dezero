@@ -1,16 +1,22 @@
 is_simple_core = False
 
 if is_simple_core:
+    from dezero.core_simple import as_array  # F401: noqa
     from dezero.core_simple import (
         Function,
         Variable,
-        as_array,  # F401: noqa
+        as_array,
         as_variable,
         no_grad,
-        setup_variable,
         using_config,
+        add,
+        mul,
+        neg,
+        sub,
+        rsub,
+        div,
+        rdiv,
     )
-    setup_variable()
 else:
     from dezero.core import (
         Function,
@@ -18,11 +24,39 @@ else:
         as_array,
         as_variable,
         no_grad,
-        setup_variable,
         using_config,
+        add,
+        mul,
+        neg,
+        sub,
+        rsub,
+        div,
+        rdiv,
+        pow_,
     )
 
-    setup_variable()
-
-
 from dezero.models import Model
+from dezero.functions import get_item, matmul, max_, min_
+from . import datasets
+
+
+def setup_variable():
+    Variable.__add__ = add
+    Variable.__radd__ = add
+    Variable.__mul__ = mul
+    Variable.__rmul__ = mul
+    Variable.__neg__ = neg
+    Variable.__sub__ = sub
+    Variable.__rsub__ = rsub
+    Variable.__truediv__ = div
+    Variable.__rtruediv__ = rdiv
+    Variable.__pow__ = pow_
+    Variable.__getitem__ = get_item
+
+    Variable.matmul = matmul
+    Variable.dot = matmul
+    Variable.max = max_
+    Variable.min = min_
+
+
+setup_variable()
