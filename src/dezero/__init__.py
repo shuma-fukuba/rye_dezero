@@ -5,17 +5,16 @@ if is_simple_core:
     from dezero.core_simple import (
         Function,
         Variable,
-        as_array,
-        as_variable,
-        no_grad,
-        using_config,
         add,
+        as_variable,
+        div,
         mul,
         neg,
-        sub,
-        rsub,
-        div,
+        no_grad,
         rdiv,
+        rsub,
+        sub,
+        using_config,
     )
 else:
     from dezero.core import (
@@ -35,9 +34,11 @@ else:
         pow_,
     )
 
-from dezero.models import Model
 from dezero.functions import get_item, matmul, max_, min_
+from dezero.models import Model
+
 from . import datasets
+from .dataloaders import DataLoader
 
 
 def setup_variable():
