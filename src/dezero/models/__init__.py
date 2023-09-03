@@ -1,2 +1,2 @@
-from .BaseModel import Model
+from .Model import Model
 from .MLP import MLP

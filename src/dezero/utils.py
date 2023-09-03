@@ -122,3 +122,15 @@ def reshape_sum_backward(
 
     gy = gy.reshape(shape)  # reshape
     return gy
+
+
+def max_backward_shape(x: dezero.Variable, axis: int) -> list[int]:
+    if axis is None:
+        axis = range(x.ndim)
+    elif isinstance(axis, int):
+        axis = (axis,)
+    else:
+        axis = axis
+
+    shape = [s if ax not in axis else 1 for ax, s in enumerate(x.shape)]
+    return shape

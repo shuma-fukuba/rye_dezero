@@ -2,7 +2,7 @@ from dezero.core import Parameter
 from dezero.functions import sigmoid
 from dezero.layers import Linear
 
-from .BaseModel import Model
+from .Model import Model
 
 
 class MLP(Model):

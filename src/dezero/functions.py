@@ -151,6 +151,19 @@ class MatMul(Function):
         return gx, gW
 
 
+class Log(Function):
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        return np.log(x)
+
+    def backward(self, gy: Variable) -> Variable:
+        (x,) = self.inputs
+        return gy / x
+
+
+def log(x: Variable) -> Variable:
+    return Log()(x)
+
+
 class MeanSquaredError(Function):
     def forward(self, x0: np.ndarray, x1: np.ndarray) -> np.ndarray:
         diff = x0 - x1
@@ -191,6 +204,89 @@ class Sigmoid(Function):
         y = self.outputs[0]()
         gx = gy * y * (1 - y)
         return gx
+
+
+class GetItem(Function):
+    def __init__(self, slices: tuple[int]) -> None:
+        self.slices = slices
+
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        y = x[self.slices]
+        return y
+
+    def backward(self, gy: Variable) -> Variable:
+        (x,) = self.inputs
+        f = GetItemGrad(self.slices, x.shape)
+        return f(gy)
+
+
+class GetItemGrad(Function):
+    def __init__(self, slices: int, in_shape: tuple[int]) -> None:
+        self.slices = slices
+        self.in_shape = in_shape
+
+    def forward(self, gy: np.ndarray) -> np.ndarray:
+        gx = np.zeros(self.in_shape)
+        np.add.at(gx, self.slices, gy)
+        return gx
+
+    def backward(self, ggx: Variable) -> Variable:
+        return get_item(ggx, self.slices)
+
+
+class Max(Function):
+    def __init__(self, axis=None, keepdims=False):
+        self.axis = axis
+        self.keepdims = keepdims
+
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        y = x.max(axis=self.axis, keepdims=self.keepdims)
+        return y
+
+    def backward(self, gy: Variable) -> Variable:
+        x = self.inputs[0]
+        y = self.outputs[0]()  # weakref
+
+        shape = utils.max_backward_shape(x, self.axis)
+        gy = reshape(gy, shape)
+        y = reshape(y, shape)
+        cond = x.data == y.data
+        gy = broadcast_to(gy, cond.shape)
+        return gy * cond
+
+
+class Min(Max):
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        y = x.min(axis=self.axis, keepdims=self.keepdims)
+        return y
+
+
+def max_(x: Variable, axis: int = None, keepdims: bool = False) -> Variable:
+    return Max(axis, keepdims)(x)
+
+
+def min_(x: Variable, axis: int = None, keepdims: bool = False) -> Variable:
+    return Min(axis, keepdims)(x)
+
+
+class Clip(Function):
+    def __init__(self, x_min, x_max):
+        self.x_min = x_min
+        self.x_max = x_max
+
+    def forward(self, x):
+        y = np.clip(x, self.x_min, self.x_max)
+        return y
+
+    def backward(self, gy):
+        (x,) = self.inputs
+        mask = (x.data >= self.x_min) * (x.data <= self.x_max)
+        gx = gy * mask
+        return gx
+
+
+def clip(x, x_min, x_max):
+    return Clip(x_min, x_max)(x)
 
 
 def cos(x: Variable) -> Variable:
@@ -271,3 +367,33 @@ def linear(x: Variable, W: Variable, b: Variable = None) -> Variable:
 
 def sigmoid(x: Variable) -> Variable:
     return Sigmoid()(x)
+
+
+def get_item(x: Variable, slices) -> Variable:
+    return GetItem(slices)(x)
+
+
+def softmax1d(x: Variable) -> Variable:
+    x = as_variable(x)
+    y = exp(x)
+    sum_y = sum_(y)
+    return y / sum_y
+
+
+def softmax_simple(x: Variable, axis: int = 1) -> Variable:
+    x = as_variable(x)
+    y = exp(x)
+    sum_y = sum(y, axis=axis, keepdims=True)
+    return y / sum_y
+
+
+def softmax_cross_entropy_simple(x: Variable, t: Variable) -> Variable:
+    x, t = as_variable(x), as_variable(t)
+    N = x.shape[0]
+
+    p = softmax_simple(x)
+    p = clip(p, 1e-15, 1.0)
+    log_p = log(p)
+    tlog_p = log_p[np.arange(N), t.data]
+    y = -1 * sum_(tlog_p) / N
+    return y
