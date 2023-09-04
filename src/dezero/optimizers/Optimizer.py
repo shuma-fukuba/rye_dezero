@@ -1,13 +1,13 @@
 from dezero.core import Parameter
-from dezero.layers import Layer
+from dezero.models import Model
 
 
 class Optimizer:
     def __init__(self) -> None:
-        self.target: Layer = None
+        self.target: Model = None
         self.hooks = []
 
-    def setup(self, target):
+    def setup(self, target: Model):
         self.target = target
         return self
 
