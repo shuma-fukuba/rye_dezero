@@ -1,7 +1,7 @@
 import numpy as np
 
 from dezero import utils
-from dezero.core import Function, Variable, as_variable, as_array
+from dezero.core import Function, Variable, as_array, as_variable
 
 
 class Exp(Function):
@@ -453,3 +453,19 @@ def accuracy(y: Variable, t: Variable) -> Variable:
     result = pred == t.data
     acc = result.mean()
     return Variable(as_array(acc))
+
+
+class ReLU(Function):
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        y = np.maximum(x, 0.0)
+        return y
+
+    def backward(self, gy: Variable) -> Variable:
+        (x,) = self.inputs
+        mask = x.data > 0
+        gx = gy * mask
+        return gx
+
+
+def relu(x: Variable) -> Variable:
+    return ReLU()(x)

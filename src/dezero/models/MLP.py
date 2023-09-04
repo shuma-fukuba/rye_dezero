@@ -1,3 +1,5 @@
+from typing import Callable
+
 from dezero.core import Parameter
 from dezero.functions import sigmoid
 from dezero.layers import Linear
@@ -6,7 +8,9 @@ from .Model import Model
 
 
 class MLP(Model):
-    def __init__(self, fc_output_sizes: list[int], activation=sigmoid) -> None:
+    def __init__(
+        self, fc_output_sizes: list[int], activation: Callable = sigmoid
+    ) -> None:
         super().__init__()
         self.activation = activation
         self.layers = []

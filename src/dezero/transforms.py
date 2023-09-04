@@ -159,5 +159,5 @@ ToFloat = AsType
 
 
 class ToInt(AsType):
-    def __init__(self, dtype=np.int):
+    def __init__(self, dtype=int):
         self.dtype = dtype
