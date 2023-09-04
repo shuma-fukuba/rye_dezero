@@ -8,7 +8,7 @@ from dezero.models import MLP
 from dezero.optimizers import Adam
 
 
-def f(x: np.ndarray):
+def f(x: np.ndarray) -> np.ndarray:
     x = x.flatten()
     x = x.astype(np.float32)
     x /= 255.0

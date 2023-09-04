@@ -1,5 +1,5 @@
 import weakref
-from typing import Any
+from typing import Any, Iterator
 
 from dezero.core import Parameter
 
@@ -26,7 +26,7 @@ class Layer:
     def forward(self, inputs: Parameter):
         raise NotImplementedError()
 
-    def params(self) -> Parameter:
+    def params(self) -> Iterator[Parameter]:
         for name in self._params:
             obj = self.__dict__[name]
 
@@ -38,3 +38,11 @@ class Layer:
     def clear_grads(self):
         for param in self.params():
             param.clear_grad()
+
+    def to_cpu(self):
+        for param in self.params():
+            param.to_cpu()
+
+    def to_gpu(self):
+        for param in self.params():
+            param.to_gpu()

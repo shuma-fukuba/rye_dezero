@@ -2,11 +2,13 @@ import numpy as np
 
 from dezero import utils
 from dezero.core import Function, Variable, as_array, as_variable
+from dezero.cuda import get_array_module
 
 
 class Exp(Function):
     def forward(self, x: np.ndarray) -> np.ndarray:
-        y = np.exp(x)
+        xp = get_array_module(x)
+        y = xp.exp(x)
         return y
 
     def backward(self, gy: Variable) -> Variable:
@@ -21,7 +23,8 @@ def exp(x: Variable) -> Variable:
 
 class Sin(Function):
     def forward(self, x: np.ndarray):
-        y = np.sin(x)
+        xp = get_array_module(x)
+        y = xp.sin(x)
         return y
 
     def backward(self, gy: Variable):
@@ -32,7 +35,8 @@ class Sin(Function):
 
 class Cos(Function):
     def forward(self, x: np.ndarray) -> np.ndarray:
-        y = np.cos(x)
+        xp = get_array_module(x)
+        y = xp.cos(x)
         return y
 
     def backward(self, gy: Variable) -> Variable:
@@ -43,7 +47,8 @@ class Cos(Function):
 
 class Tanh(Function):
     def forward(self, x: np.ndarray) -> np.ndarray:
-        y = np.tanh(x)
+        xp = get_array_module(x)
+        y = xp.tanh(x)
         return y
 
     def backward(self, gy: Variable) -> Variable:
@@ -153,7 +158,8 @@ class MatMul(Function):
 
 class Log(Function):
     def forward(self, x: np.ndarray) -> np.ndarray:
-        return np.log(x)
+        xp = get_array_module(x)
+        return xp.log(x)
 
     def backward(self, gy: Variable) -> Variable:
         (x,) = self.inputs
@@ -197,7 +203,8 @@ class Linear(Function):
 class Sigmoid(Function):
     def forward(self, x: np.ndarray) -> np.ndarray:
         # y = 1 / (1 + xp.exp(-x))
-        y = np.tanh(x * 0.5) * 0.5 + 0.5  # Better implementation
+        xp = get_array_module(x)
+        y = xp.tanh(x * 0.5) * 0.5 + 0.5  # Better implementation
         return y
 
     def backward(self, gy: Variable) -> Variable:
@@ -226,8 +233,9 @@ class GetItemGrad(Function):
         self.in_shape = in_shape
 
     def forward(self, gy: np.ndarray) -> np.ndarray:
-        gx = np.zeros(self.in_shape)
-        np.add.at(gx, self.slices, gy)
+        xp = get_array_module(x)
+        gx = xp.zeros(self.in_shape)
+        xp.add.at(gx, self.slices, gy)
         return gx
 
     def backward(self, ggx: Variable) -> Variable:
@@ -275,7 +283,8 @@ class Clip(Function):
         self.x_max = x_max
 
     def forward(self, x):
-        y = np.clip(x, self.x_min, self.x_max)
+        xp = get_array_module(x)
+        y = xp.clip(x, self.x_min, self.x_max)
         return y
 
     def backward(self, gy):
@@ -386,7 +395,8 @@ class Softmax(Function):
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         y = x - x.max(axis=self.axis, keepdims=True)
-        y = np.exp(y)
+        xp = get_array_module(x)
+        y = xp.exp(y)
         y /= y.sum(axis=self.axis, keepdims=True)
         return y
 
@@ -457,7 +467,8 @@ def accuracy(y: Variable, t: Variable) -> Variable:
 
 class ReLU(Function):
     def forward(self, x: np.ndarray) -> np.ndarray:
-        y = np.maximum(x, 0.0)
+        xp = get_array_module(x)
+        y = xp.maximum(x, 0.0)
         return y
 
     def backward(self, gy: Variable) -> Variable:
